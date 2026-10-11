@@ -15,37 +15,37 @@ export const DailyTasksPage: React.FC = () => {
       />
 
       {/* Mini Stats Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
-          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
-            <ListTodo className="w-4 h-4 text-indigo-500" />
-            <span className="text-xs font-semibold">Total Tasks</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-slate-500 dark:text-slate-400 mb-1">
+            <ListTodo className="w-4 h-4 text-indigo-500 shrink-0" />
+            <span className="text-[11px] sm:text-xs font-semibold truncate">Total Tasks</span>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stats.totalCount}</p>
+          <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">{stats.totalCount}</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
-          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-1">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            <span className="text-xs font-semibold">Completed</span>
+        <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-emerald-600 dark:text-emerald-400 mb-1">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span className="text-[11px] sm:text-xs font-semibold truncate">Completed</span>
           </div>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.completedCount}</p>
+          <p className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.completedCount}</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
-          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-1">
-            <Clock className="w-4 h-4 text-amber-500" />
-            <span className="text-xs font-semibold">Pending</span>
+        <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-amber-600 dark:text-amber-400 mb-1">
+            <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+            <span className="text-[11px] sm:text-xs font-semibold truncate">Pending</span>
           </div>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.pendingCount}</p>
+          <p className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.pendingCount}</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
-          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 mb-1">
-            <TrendingUp className="w-4 h-4 text-indigo-500" />
-            <span className="text-xs font-semibold">Completion</span>
+        <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs transition-colors">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-indigo-600 dark:text-indigo-400 mb-1">
+            <TrendingUp className="w-4 h-4 text-indigo-500 shrink-0" />
+            <span className="text-[11px] sm:text-xs font-semibold truncate">Completion</span>
           </div>
-          <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{stats.progressPct}%</p>
+          <p className="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400">{stats.progressPct}%</p>
         </div>
       </div>
 

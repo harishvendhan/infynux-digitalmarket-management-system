@@ -22,18 +22,18 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition-all relative overflow-hidden ${className}`}
+      className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs hover:shadow-md transition-all relative overflow-hidden ${className}`}
     >
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-1 min-w-0">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
             {title}
           </p>
-          <div className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <div className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
             {value}
           </div>
           {subtitle && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">{subtitle}</p>
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-normal line-clamp-1">{subtitle}</p>
           )}
           {trend && (
             <div className="flex items-center text-xs mt-1 font-medium">
@@ -46,7 +46,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           )}
         </div>
         {icon && (
-          <div className="p-3 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center shrink-0">
+          <div className="p-2 sm:p-3 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center shrink-0">
             {icon}
           </div>
         )}

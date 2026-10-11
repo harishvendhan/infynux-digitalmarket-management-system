@@ -19,12 +19,12 @@ interface SummaryCardsProps {
 export const SummaryCards: React.FC<SummaryCardsProps> = ({ stats, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-3">
-            <Skeleton className="h-3 w-24" />
-            <Skeleton className="h-8 w-16" />
-            <Skeleton className="h-3 w-32" />
+          <div key={i} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs space-y-3">
+            <Skeleton className="h-3 w-16 sm:w-24" />
+            <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
+            <Skeleton className="h-3 w-20 sm:w-32" />
           </div>
         ))}
       </div>
@@ -32,7 +32,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ stats, isLoading }) 
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
       <StatCard
         title="Total Projects"
         value={stats.total_projects}

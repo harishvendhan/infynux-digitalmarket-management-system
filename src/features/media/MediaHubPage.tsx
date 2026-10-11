@@ -116,7 +116,7 @@ export const MediaHubPage: React.FC = () => {
         title="Deliverables & Insights Gallery"
         description="Upload deliverable screenshots, reel insights, and download professional client-ready PDF reports."
         action={
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={handleDownloadAllPdf}
@@ -226,7 +226,7 @@ export const MediaHubPage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           {filteredMedia.map((item) => {
             const isDownloadingThis = exportingId === item.id;
 
@@ -238,7 +238,7 @@ export const MediaHubPage: React.FC = () => {
                 {/* Image Container with Hover Action */}
                 <div
                   onClick={() => setPreviewMedia(item)}
-                  className="relative h-44 sm:h-48 bg-slate-950/90 overflow-hidden cursor-pointer flex items-center justify-center p-2 rounded-t-xl"
+                  className="relative h-36 sm:h-48 bg-slate-950/90 overflow-hidden cursor-pointer flex items-center justify-center p-2 rounded-t-xl"
                 >
                   <img
                     src={item.imageUrl}
@@ -267,35 +267,35 @@ export const MediaHubPage: React.FC = () => {
                 </div>
 
                 {/* Card Content */}
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug line-clamp-1">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug line-clamp-1">
                       {item.title}
                     </h3>
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-0.5 line-clamp-1">
+                    <p className="text-[11px] sm:text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-0.5 line-clamp-1">
                       {item.projectTitle}
                     </p>
 
                     {item.notes && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{item.notes}</p>
+                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{item.notes}</p>
                     )}
                   </div>
 
 
                   {/* Card Actions Footer */}
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1.5 sm:gap-2">
                     <button
                       type="button"
                       onClick={() => handleDownloadSinglePdf(item)}
                       disabled={isDownloadingThis}
-                      className="flex-1 py-1.5 px-3 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="flex-1 py-1.5 px-2 sm:px-3 text-[11px] sm:text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer"
                     >
                       {isDownloadingThis ? (
                         <span className="w-3.5 h-3.5 border-2 border-indigo-700/30 border-t-indigo-700 dark:border-indigo-400/30 dark:border-t-indigo-400 rounded-full animate-spin" />
                       ) : (
-                        <FileDown className="w-3.5 h-3.5" />
+                        <FileDown className="w-3.5 h-3.5 shrink-0" />
                       )}
-                      Download PDF
+                      <span className="truncate">Download PDF</span>
                     </button>
 
                     <button

@@ -115,7 +115,7 @@ export const WeeklyTasks: React.FC<WeeklyTasksProps> = ({
           </div>
 
           {/* Three Counters per D1 */}
-          <div className="grid grid-cols-3 gap-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-2">
             <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-purple-100 dark:border-purple-900/30 flex items-center gap-3">
               <div className="p-2 bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 rounded-lg">
                 <Film className="w-4 h-4" />

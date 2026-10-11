@@ -130,8 +130,8 @@ export const DailyTaskCard: React.FC<DailyTaskCardProps> = ({
               type="text"
               value={inputTitle}
               onChange={(e) => setInputTitle(e.target.value)}
-              placeholder="Add a new daily task... (e.g., Publish Instagram Reel, Review analytics)"
-              className="w-full pl-3.5 pr-24 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-2xs"
+              placeholder="Add a new daily task... (e.g., Publish Reel)"
+              className="w-full pl-3.5 pr-22 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-2xs"
             />
             <select
               value={selectedCategory}
@@ -150,7 +150,7 @@ export const DailyTaskCard: React.FC<DailyTaskCardProps> = ({
           <button
             type="submit"
             disabled={!inputTitle.trim()}
-            className="px-4 py-2.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 rounded-xl transition-all shadow-xs flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="px-3.5 sm:px-4 py-2.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 rounded-xl transition-all shadow-xs flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Add Task</span>
@@ -158,8 +158,8 @@ export const DailyTaskCard: React.FC<DailyTaskCardProps> = ({
         </div>
 
         {/* Filter Pills & Clear Action */}
-        <div className="flex items-center justify-between text-xs pt-1">
-          <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
+          <div className="flex flex-wrap items-center gap-1">
             <button
               type="button"
               onClick={() => setFilter('all')}

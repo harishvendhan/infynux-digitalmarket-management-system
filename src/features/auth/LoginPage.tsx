@@ -98,21 +98,21 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="w-16 h-16 rounded-2xl bg-slate-900 mx-auto flex items-center justify-center p-2 shadow-lg shadow-slate-200 dark:shadow-none mb-3 border border-slate-800">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-900 mx-auto flex items-center justify-center p-2 shadow-lg shadow-slate-200 dark:shadow-none mb-3 border border-slate-800">
           <img src="/logo.png" alt="Infynux Logo" className="w-full h-full object-contain" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
           Sign in to Infynux
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 font-medium">
+        <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
           Digital Market Management
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white dark:bg-slate-900 py-8 px-6 sm:px-10 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800">
+      <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white dark:bg-slate-900 py-6 sm:py-8 px-5 sm:px-10 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800">
 
           {authError && (
             <div className="mb-6 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl text-xs text-rose-700 dark:text-rose-400 font-medium">

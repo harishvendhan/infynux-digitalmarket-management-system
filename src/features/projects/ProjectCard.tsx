@@ -61,8 +61,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ item, onDelete }) => {
         )}
 
         {/* Date range & duration */}
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-3">
-          <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-3 leading-relaxed">
+          <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
           <span>
             {formatDate(project.start_date)} – {formatDate(project.end_date)}
           </span>

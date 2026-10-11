@@ -140,7 +140,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       </div>
 
       {/* Live duration & weeks indicator per Section 5.3 */}
-      <div className="p-4 bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100/80 dark:border-indigo-900/50 rounded-xl flex items-center justify-between gap-3 text-xs text-indigo-900 dark:text-indigo-300">
+      <div className="p-4 bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100/80 dark:border-indigo-900/50 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 text-xs text-indigo-900 dark:text-indigo-300">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
           <span>
@@ -240,17 +240,17 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
         <Link
           to="/projects"
-          className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+          className="w-full sm:w-auto text-center px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-sm disabled:bg-indigo-400 flex items-center gap-2"
+          className="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-sm disabled:bg-indigo-400 flex items-center justify-center gap-2 cursor-pointer"
         >
           {isSubmitting && (
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
