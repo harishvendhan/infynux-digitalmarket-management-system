@@ -11,7 +11,13 @@ export const isSupabaseConfigured = Boolean(
 );
 
 export const shouldUseMockData = (): boolean => {
-  return !isSupabaseConfigured || (typeof window !== 'undefined' && localStorage.getItem('antigravity_demo_user') === 'true');
+  if (!isSupabaseConfigured) return true;
+  if (typeof window !== 'undefined') {
+    const isDemo = localStorage.getItem('antigravity_demo_user') === 'true';
+    const email = localStorage.getItem('antigravity_demo_email') || '';
+    return isDemo && email.toLowerCase().trim() === 'demo@agency.com';
+  }
+  return false;
 };
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

@@ -11,21 +11,7 @@ export const getRegisteredUsers = (): RegisteredUser[] => {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    const users: RegisteredUser[] = raw ? JSON.parse(raw) : [];
-
-    // Pre-populate user from screenshot if not present so they can log in immediately
-    const hasHarish = users.some((u) => u.email.toLowerCase() === 'harishvendhand@gmail.com');
-    if (!hasHarish) {
-      users.push({
-        email: 'harishvendhand@gmail.com',
-        password: 'harish##123',
-        displayName: 'Harish Vendhan',
-        createdAt: new Date().toISOString(),
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-    }
-
-    return users;
+    return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }

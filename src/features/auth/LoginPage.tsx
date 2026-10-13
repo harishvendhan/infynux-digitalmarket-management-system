@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from '../../lib/schemas';
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient';
 import { useAuth } from './useAuth';
-import { verifyRegisteredUser, findRegisteredUser } from '../../lib/localAuth';
+import { syncLocalDataToSupabase } from '../../lib/syncLocalDataToSupabase';
 import { toast } from 'sonner';
 
 export const LoginPage: React.FC = () => {
@@ -40,72 +40,48 @@ export const LoginPage: React.FC = () => {
       }
 
       if (isSupabaseConfigured) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: authData, error } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
         });
 
-        if (!error) {
+        if (!error && authData?.user) {
           if (typeof window !== 'undefined') {
             localStorage.removeItem('antigravity_demo_user');
           }
-          toast.success('Signed in successfully');
           try {
-            const { syncLocalProjectsToSupabase } = await import('../../lib/cloudSync');
-            await syncLocalProjectsToSupabase();
-          } catch {
-            // Background sync is non-blocking
+            await syncLocalDataToSupabase(authData.user);
+          } catch (syncErr) {
+            console.error('Error syncing local data on sign in:', syncErr);
           }
+          toast.success('Signed in successfully');
           navigate('/dashboard');
           return;
         }
 
-        const errMsg = (error.message || '').toLowerCase();
-        if (errMsg.includes('email not confirmed')) {
-          setAuthError(
-            'Email confirmation pending. Please click the confirmation link sent to your inbox to enable cloud sync across all devices, or disable "Confirm email" in Supabase Auth settings.'
-          );
+        if (error) {
+          const errMsg = error.message.toLowerCase();
+          if (errMsg.includes('email not confirmed')) {
+            setAuthError(
+              'Your email is not confirmed yet. Please check your email inbox for the Supabase confirmation link. (Or disable "Confirm email" in Supabase Dashboard -> Authentication -> Providers -> Email for instant login).'
+            );
+            return;
+          }
+          if (errMsg.includes('invalid login credentials')) {
+            setAuthError(
+              'Invalid email or password. If you have not created an account yet, please click "Create an account" below.'
+            );
+            return;
+          }
+          setAuthError(error.message || 'Authentication failed. Please check your credentials.');
           return;
         }
-
-        // If Supabase returned an error (e.g. offline/network or unconfirmed fallback):
-        // Check if this account was created locally or exists in registered users
-        const localUser = verifyRegisteredUser(data.email, data.password);
-        if (localUser) {
-          loginAsDemo({ email: localUser.email, displayName: localUser.displayName });
-          toast.warning('Signed in in Local Mode. Changes will only save on this device until cloud account is verified.');
-          navigate('/dashboard');
-          return;
-        }
-
-        // If local user exists but password differed
-        const registered = findRegisteredUser(data.email);
-        if (registered) {
-          setAuthError('Incorrect password. Please verify and try again.');
-          return;
-        }
-
-        setAuthError(error.message || 'Invalid email or password. Please try again.');
       } else {
-        const localUser = verifyRegisteredUser(data.email, data.password);
-        if (localUser) {
-          loginAsDemo({ email: localUser.email, displayName: localUser.displayName });
-          toast.success(`Welcome back, ${localUser.displayName}!`);
-          navigate('/dashboard');
-          return;
-        }
-        setAuthError('Invalid email or password. Please try again or create an account.');
+        setAuthError('Supabase is not configured. Please check your .env configuration.');
       }
-    } catch {
-      // In case of network error, check registered accounts as fallback
-      const localUser = verifyRegisteredUser(data.email, data.password);
-      if (localUser) {
-        loginAsDemo({ email: localUser.email, displayName: localUser.displayName });
-        toast.success(`Welcome back, ${localUser.displayName}!`);
-        navigate('/dashboard');
-        return;
-      }
-      setAuthError('An unexpected network error occurred. Please retry.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred during sign in.';
+      setAuthError(msg);
     } finally {
       setLoading(false);
     }

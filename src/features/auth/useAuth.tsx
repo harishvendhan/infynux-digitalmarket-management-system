@@ -3,6 +3,7 @@ import type { User, Session } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient';
 import { setCurrentUserScope, clearCurrentUserScope } from '../../lib/userScope';
 import { queryClient } from '../../lib/queryClient';
+import { syncLocalDataToSupabase } from '../../lib/syncLocalDataToSupabase';
 import { toast } from 'sonner';
 
 interface AuthContextType {
@@ -32,7 +33,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDemoUser, setIsDemoUser] = useState(() => {
-    return typeof window !== 'undefined' && localStorage.getItem('antigravity_demo_user') === 'true';
+    if (typeof window === 'undefined') return false;
+    const isDemo = localStorage.getItem('antigravity_demo_user') === 'true';
+    const email = localStorage.getItem('antigravity_demo_email') || '';
+    return isDemo && email.toLowerCase().trim() === 'demo@agency.com';
   });
 
   const createDemoSession = (customUser?: { email?: string; displayName?: string }) => {
@@ -79,69 +83,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    const isDemoFlag = typeof window !== 'undefined' && localStorage.getItem('antigravity_demo_user') === 'true';
+    const demoEmail = (typeof window !== 'undefined' ? localStorage.getItem('antigravity_demo_email') : '') || '';
+
+    // Only allow demo mode if email is explicitly demo@agency.com
+    if (isDemoFlag && demoEmail.toLowerCase().trim() === 'demo@agency.com') {
+      createDemoSession();
+      return;
+    } else if (isDemoFlag) {
+      // Clear invalid demo user flag for custom profiles
+      localStorage.removeItem('antigravity_demo_user');
+      setIsDemoUser(false);
+    }
+
     if (!isSupabaseConfigured) {
       createDemoSession();
       return;
     }
 
-    // Always inspect Supabase session first so real accounts are never locked in demo mock mode
+    // Supabase auth subscription
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('antigravity_demo_user');
-        }
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user?.email) {
+        setCurrentUserScope(session.user.email);
         setIsDemoUser(false);
-        setSession(session);
-        setUser(session.user);
-        if (session.user.email) {
-          setCurrentUserScope(session.user.email);
-        }
-        setLoading(false);
-
-        // Auto-sync any existing local projects to Supabase Cloud
-        import('../../lib/cloudSync')
-          .then(({ syncLocalProjectsToSupabase }) => syncLocalProjectsToSupabase())
-          .catch((err) => console.warn('Background cloud sync error:', err));
-        return;
+        // Automatically sync any local work created offline to Supabase
+        syncLocalDataToSupabase(session.user).catch((err) =>
+          console.error('Data sync on getSession failed:', err)
+        );
       }
-
-      // If no active Supabase session, check if demo mode was explicitly active
-      if (typeof window !== 'undefined' && localStorage.getItem('antigravity_demo_user') === 'true') {
-        createDemoSession();
-        return;
-      }
-
-      setSession(null);
-      setUser(null);
       setLoading(false);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('antigravity_demo_user');
-        }
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user?.email) {
+        setCurrentUserScope(session.user.email);
         setIsDemoUser(false);
-        setSession(session);
-        setUser(session.user);
-        if (session.user.email) {
-          setCurrentUserScope(session.user.email);
-        }
-        setLoading(false);
+        // Automatically sync any local work created offline to Supabase
+        syncLocalDataToSupabase(session.user).catch((err) =>
+          console.error('Data sync on onAuthStateChange failed:', err)
+        );
+      }
+      setLoading(false);
 
-        // Auto-sync local projects whenever user signs in or refreshes token
-        import('../../lib/cloudSync')
-          .then(({ syncLocalProjectsToSupabase }) => syncLocalProjectsToSupabase())
-          .catch((err) => console.warn('Background cloud sync error:', err));
-      } else if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT') {
         clearCurrentUserScope();
-        setIsDemoUser(false);
-        setUser(null);
-        setSession(null);
-        setLoading(false);
         toast.info('You have been signed out.');
+      } else if (event === 'TOKEN_REFRESHED') {
+        // refreshed token
       }
     });
 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { getCurrentUserScope } from '../../lib/userScope';
+import { supabase } from '../../lib/supabaseClient';
+import { useAuth } from '../auth/useAuth';
 
 export type TaskCategory = 'general' | 'reel' | 'post' | 'video' | 'client';
 
@@ -51,10 +53,16 @@ const INITIAL_TASKS: DailyTask[] = [
 ];
 
 export function useDailyTasks() {
+  const { user, isDemoUser } = useAuth();
   const userScope = getCurrentUserScope();
   const storageKey = `infynux_daily_tasks_${userScope}`;
 
   const [tasks, setTasks] = useState<DailyTask[]>(() => {
+    // 1. Try to load from authenticated user profile metadata in Supabase
+    if (user?.user_metadata?.daily_tasks && Array.isArray(user.user_metadata.daily_tasks)) {
+      return user.user_metadata.daily_tasks;
+    }
+
     if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem(storageKey);
@@ -73,8 +81,13 @@ export function useDailyTasks() {
 
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
-  // Reload tasks when user scope changes
+  // Reload tasks when user or user scope changes
   useEffect(() => {
+    if (user?.user_metadata?.daily_tasks && Array.isArray(user.user_metadata.daily_tasks)) {
+      setTasks(user.user_metadata.daily_tasks);
+      return;
+    }
+
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) {
@@ -87,15 +100,25 @@ export function useDailyTasks() {
     } catch {
       setTasks([]);
     }
-  }, [userScope, storageKey]);
+  }, [user, userScope, storageKey]);
 
-  useEffect(() => {
+  // Persist to local cache and Supabase user metadata
+  const persistTasks = (nextTasks: DailyTask[]) => {
+    setTasks(nextTasks);
     try {
-      localStorage.setItem(storageKey, JSON.stringify(tasks));
+      localStorage.setItem(storageKey, JSON.stringify(nextTasks));
     } catch (e) {
-      console.error('Failed to save daily tasks:', e);
+      console.error('Failed to save daily tasks locally:', e);
     }
-  }, [tasks, storageKey]);
+
+    if (user && !isDemoUser) {
+      supabase.auth.updateUser({
+        data: { daily_tasks: nextTasks },
+      }).catch((err) => {
+        console.error('Failed to sync daily tasks to Supabase user profile:', err);
+      });
+    }
+  };
 
   const addTask = (title: string, category: TaskCategory = 'general') => {
     const trimmed = title.trim();
@@ -113,34 +136,36 @@ export function useDailyTasks() {
       createdAt: new Date().toISOString(),
     };
 
-    setTasks((prev) => [newTask, ...prev]);
+    const next = [newTask, ...tasks];
+    persistTasks(next);
     toast.success('Task added to daily checklist');
   };
 
   const toggleTask = (id: string) => {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id === id) {
-          const nextState = !t.completed;
-          if (nextState) {
-            toast.success(`Completed: "${t.title}"`);
-          }
-          return { ...t, completed: nextState };
+    const next = tasks.map((t) => {
+      if (t.id === id) {
+        const nextState = !t.completed;
+        if (nextState) {
+          toast.success(`Completed: "${t.title}"`);
         }
-        return t;
-      })
-    );
+        return { ...t, completed: nextState };
+      }
+      return t;
+    });
+    persistTasks(next);
   };
 
   const deleteTask = (id: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+    const next = tasks.filter((t) => t.id !== id);
+    persistTasks(next);
     toast.info('Task removed');
   };
 
   const clearCompleted = () => {
     const completedCount = tasks.filter((t) => t.completed).length;
     if (completedCount === 0) return;
-    setTasks((prev) => prev.filter((t) => !t.completed));
+    const next = tasks.filter((t) => !t.completed);
+    persistTasks(next);
     toast.info(`Cleared ${completedCount} completed task${completedCount > 1 ? 's' : ''}`);
   };
 

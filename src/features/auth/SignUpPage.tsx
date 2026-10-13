@@ -5,8 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signupSchema, type SignupFormData } from '../../lib/schemas';
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient';
-import { useAuth } from './useAuth';
-import { saveRegisteredUser } from '../../lib/localAuth';
+import { syncLocalDataToSupabase } from '../../lib/syncLocalDataToSupabase';
 import { toast } from 'sonner';
 
 export const SignUpPage: React.FC = () => {
@@ -16,7 +15,6 @@ export const SignUpPage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { loginAsDemo } = useAuth();
 
   const {
     register,
@@ -38,17 +36,8 @@ export const SignUpPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // 1. Always save credentials to local registered users registry
-      saveRegisteredUser({
-        email: data.email,
-        password: data.password,
-        displayName: data.displayName,
-      });
-
       if (!isSupabaseConfigured) {
-        loginAsDemo({ email: data.email, displayName: data.displayName });
-        toast.success(`Welcome to Infynux, ${data.displayName}!`);
-        navigate('/dashboard');
+        setAuthError('Supabase is not configured. Please check your .env configuration.');
         return;
       }
 
@@ -64,31 +53,26 @@ export const SignUpPage: React.FC = () => {
 
       if (error) {
         const errMsg = error.message.toLowerCase();
-        // If Supabase hits email rate limit, don't block the user: use local authentication
         if (
           errMsg.includes('rate limit') ||
           errMsg.includes('rate_limit') ||
           errMsg.includes('email rate limit') ||
           (error as { status?: number }).status === 429
         ) {
-          loginAsDemo({ email: data.email, displayName: data.displayName });
-          toast.success(`Account created successfully! Welcome, ${data.displayName}.`);
-          navigate('/dashboard');
+          setAuthError(
+            'Supabase Email Rate Limit Exceeded: Supabase limits confirmation emails to 3 per hour. ' +
+            'To resolve this: Open your Supabase Dashboard -> Authentication -> Providers -> Email, and uncheck "Confirm email". ' +
+            'This allows instant account registration and cross-device login without email delivery limits.'
+          );
           return;
         }
 
-        // If user already exists in Supabase, sign them in directly
         if (errMsg.includes('already registered') || errMsg.includes('already in use')) {
-          loginAsDemo({ email: data.email, displayName: data.displayName });
-          toast.success(`Account recognized! Welcome back, ${data.displayName}.`);
-          navigate('/dashboard');
+          setAuthError('An account with this email already exists in Supabase. Please proceed to Sign In.');
           return;
         }
 
-        // For any other Supabase error, fallback to local registration so user is never locked out
-        loginAsDemo({ email: data.email, displayName: data.displayName });
-        toast.success(`Account created! Welcome, ${data.displayName}.`);
-        navigate('/dashboard');
+        setAuthError(error.message || 'Failed to create account. Please try again.');
         return;
       }
 
@@ -96,27 +80,27 @@ export const SignUpPage: React.FC = () => {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('antigravity_demo_user');
         }
-        toast.success(`Account created! Welcome, ${data.displayName}.`);
-        try {
-          const { syncLocalProjectsToSupabase } = await import('../../lib/cloudSync');
-          await syncLocalProjectsToSupabase();
-        } catch {
-          // non-blocking
+        if (authData.user) {
+          try {
+            await syncLocalDataToSupabase(authData.user);
+          } catch (syncErr) {
+            console.error('Error syncing local data on sign up:', syncErr);
+          }
         }
+        toast.success(`Account created! Welcome, ${data.displayName}.`);
         navigate('/dashboard');
-      } else {
-        // Supabase requires email verification before granting a live cloud session
-        loginAsDemo({ email: data.email, displayName: data.displayName });
-        toast.warning(
-          `Account created! Check your email to confirm your account for multi-device sync. You are currently in Local Mode on this device.`
-        );
-        navigate('/dashboard');
+        return;
       }
-    } catch {
-      // Even if network fails, allow access using local credentials
-      loginAsDemo({ email: data.email, displayName: data.displayName });
-      toast.warning(`Network unreachable. Continuing in Local Mode on this device.`);
-      navigate('/dashboard');
+
+      if (authData?.user && !authData.session) {
+        setSuccessMessage(
+          `Your account for ${data.email} has been created in Supabase! A verification email was sent to your inbox. Please click the confirmation link in the email, then proceed to Sign In. ` +
+          `(Tip: In your Supabase Dashboard under Authentication -> Providers -> Email, you can turn off "Confirm email" to enable immediate login without email confirmation).`
+        );
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred while creating your account.';
+      setAuthError(msg);
     } finally {
       setLoading(false);
     }

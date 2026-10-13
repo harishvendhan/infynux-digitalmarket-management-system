@@ -7,8 +7,6 @@ import { useDashboardStats, useProjects } from '../projects/useProjects';
 import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { CloudSyncBanner } from '../../components/ui/CloudSyncBanner';
-
 export const DashboardPage: React.FC = () => {
   const { stats, attentionProjects, isLoading: isStatsLoading } = useDashboardStats();
   const { data: projectItems, isLoading: isProjectsLoading } = useProjects();
@@ -28,9 +26,6 @@ export const DashboardPage: React.FC = () => {
           </Link>
         }
       />
-
-      {/* Cloud Sync Status Banner */}
-      <CloudSyncBanner />
 
       {/* Six Summary Cards per Section 5.2 */}
       <SummaryCards stats={stats} isLoading={isStatsLoading} />
