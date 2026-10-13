@@ -10,6 +10,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_SUPABASE_URL
-        sync: false
+        value: https://fftbngoepaglonkdqxuz.supabase.co
       - key: VITE_SUPABASE_ANON_KEY
-        sync: false
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmdGJuZ29lcGFnbG9ua2RxeHV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NTg2MDksImV4cCI6MjEwNzEzNDYwOX0.aYJKch_eYk2ZxSju04SOORZl4vSn-yaGbS8FM5edaeM
