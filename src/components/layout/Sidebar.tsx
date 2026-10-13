@@ -107,9 +107,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
               {userName || 'Demo Agency Lead'}
             </p>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">
-              {userEmail || 'demo@agency.com'}
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  userEmail && userEmail !== 'demo@agency.com'
+                    ? 'bg-emerald-500'
+                    : 'bg-amber-500'
+                }`}
+              />
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                {userEmail && userEmail !== 'demo@agency.com' ? 'Supabase Synced' : 'Local Mode'}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <ThemeToggle />

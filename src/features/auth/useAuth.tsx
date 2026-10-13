@@ -79,41 +79,69 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && localStorage.getItem('antigravity_demo_user') === 'true') {
-      createDemoSession();
-      return;
-    }
-
     if (!isSupabaseConfigured) {
       createDemoSession();
       return;
     }
 
-    // Supabase auth subscription
+    // Always inspect Supabase session first so real accounts are never locked in demo mock mode
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user?.email) {
-        setCurrentUserScope(session.user.email);
+      if (session?.user) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('antigravity_demo_user');
+        }
+        setIsDemoUser(false);
+        setSession(session);
+        setUser(session.user);
+        if (session.user.email) {
+          setCurrentUserScope(session.user.email);
+        }
+        setLoading(false);
+
+        // Auto-sync any existing local projects to Supabase Cloud
+        import('../../lib/cloudSync')
+          .then(({ syncLocalProjectsToSupabase }) => syncLocalProjectsToSupabase())
+          .catch((err) => console.warn('Background cloud sync error:', err));
+        return;
       }
+
+      // If no active Supabase session, check if demo mode was explicitly active
+      if (typeof window !== 'undefined' && localStorage.getItem('antigravity_demo_user') === 'true') {
+        createDemoSession();
+        return;
+      }
+
+      setSession(null);
+      setUser(null);
       setLoading(false);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user?.email) {
-        setCurrentUserScope(session.user.email);
-      }
-      setLoading(false);
+      if (session?.user) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('antigravity_demo_user');
+        }
+        setIsDemoUser(false);
+        setSession(session);
+        setUser(session.user);
+        if (session.user.email) {
+          setCurrentUserScope(session.user.email);
+        }
+        setLoading(false);
 
-      if (event === 'SIGNED_OUT') {
+        // Auto-sync local projects whenever user signs in or refreshes token
+        import('../../lib/cloudSync')
+          .then(({ syncLocalProjectsToSupabase }) => syncLocalProjectsToSupabase())
+          .catch((err) => console.warn('Background cloud sync error:', err));
+      } else if (event === 'SIGNED_OUT') {
         clearCurrentUserScope();
+        setIsDemoUser(false);
+        setUser(null);
+        setSession(null);
+        setLoading(false);
         toast.info('You have been signed out.');
-      } else if (event === 'TOKEN_REFRESHED') {
-        // refreshed token
       }
     });
 

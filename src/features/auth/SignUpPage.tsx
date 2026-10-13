@@ -97,17 +97,25 @@ export const SignUpPage: React.FC = () => {
           localStorage.removeItem('antigravity_demo_user');
         }
         toast.success(`Account created! Welcome, ${data.displayName}.`);
+        try {
+          const { syncLocalProjectsToSupabase } = await import('../../lib/cloudSync');
+          await syncLocalProjectsToSupabase();
+        } catch {
+          // non-blocking
+        }
         navigate('/dashboard');
       } else {
-        // Supabase requires email verification, but allow immediate access locally
+        // Supabase requires email verification before granting a live cloud session
         loginAsDemo({ email: data.email, displayName: data.displayName });
-        toast.success(`Account created! Welcome, ${data.displayName}.`);
+        toast.warning(
+          `Account created! Check your email to confirm your account for multi-device sync. You are currently in Local Mode on this device.`
+        );
         navigate('/dashboard');
       }
     } catch {
       // Even if network fails, allow access using local credentials
       loginAsDemo({ email: data.email, displayName: data.displayName });
-      toast.success(`Account created! Welcome, ${data.displayName}.`);
+      toast.warning(`Network unreachable. Continuing in Local Mode on this device.`);
       navigate('/dashboard');
     } finally {
       setLoading(false);

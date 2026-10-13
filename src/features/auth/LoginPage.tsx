@@ -50,16 +50,30 @@ export const LoginPage: React.FC = () => {
             localStorage.removeItem('antigravity_demo_user');
           }
           toast.success('Signed in successfully');
+          try {
+            const { syncLocalProjectsToSupabase } = await import('../../lib/cloudSync');
+            await syncLocalProjectsToSupabase();
+          } catch {
+            // Background sync is non-blocking
+          }
           navigate('/dashboard');
           return;
         }
 
-        // If Supabase returned an error (e.g. unconfirmed email or credential check):
+        const errMsg = (error.message || '').toLowerCase();
+        if (errMsg.includes('email not confirmed')) {
+          setAuthError(
+            'Email confirmation pending. Please click the confirmation link sent to your inbox to enable cloud sync across all devices, or disable "Confirm email" in Supabase Auth settings.'
+          );
+          return;
+        }
+
+        // If Supabase returned an error (e.g. offline/network or unconfirmed fallback):
         // Check if this account was created locally or exists in registered users
         const localUser = verifyRegisteredUser(data.email, data.password);
         if (localUser) {
           loginAsDemo({ email: localUser.email, displayName: localUser.displayName });
-          toast.success(`Welcome back, ${localUser.displayName}!`);
+          toast.warning('Signed in in Local Mode. Changes will only save on this device until cloud account is verified.');
           navigate('/dashboard');
           return;
         }
